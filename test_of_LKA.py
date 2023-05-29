@@ -22,7 +22,6 @@ from myutils.write_into_file import pd_toExcel
 from myutils.Mytransform import Gaussian,bright_contrast_color_sharpness, padding_img, pepper_salt
 
 
-
 from Backbone.AlexNet_SKA import AlexNet_LKA
 from Backbone.VGG_SKA import VGG16_SKA
 from Backbone.ResNet_SKA import SKA_resnet50
@@ -31,9 +30,7 @@ from Backbone.ConfusionMatrix import ConfusionMatrix
 
 
 
-# ------------------------------------------
-# 参数调整
-# ------------------------------------------
+
 parser = argparse.ArgumentParser(description='test')
 parser.add_argument('--batch_size', default=8, type=int, help ='batch_size')
 parser.add_argument('--epochs', default = 100, type=int, help='epoch')
@@ -49,11 +46,6 @@ parser.add_argument('--pretrained', default=r'weights\test-41-different\head\Ale
 args = parser.parse_args()
 
 
-
-
-# ------------------------------------------
-# 模型调整
-# ------------------------------------------
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 s = eval(args.model_name)
@@ -67,20 +59,16 @@ loss_function = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), args.learning_rate)
 
 
-
-# ------------------------------------------
-# 存储调整
-# ------------------------------------------
 image_path = './dataset/test-41-different/{}'.format(args.part)
-# 数据结果存储路径
+
 write_home = './logs/test-41-different/{}'.format(args.part)
 write_name = '/{}_pd{}/'.format(args.model_name,args.padding_value)
 write_path = write_home + write_name
-# 权重文件存储路径
+
 save_home = './weights/test-41-different/{}'.format(args.part)
 save_name = '/{}_pd{}.pt'.format(args.model_name,args.padding_value)
 save_path = save_home + save_name
-# 分类文件
+
 json_class = 'json_file/class-test-41.json'
 excel_name = 'excel/{}-{}_pd{}_41_all_.xlsx'.format(args.part,args.model_name,args.padding_value)
 torch.manual_seed(100)
@@ -88,9 +76,6 @@ torch.cuda.manual_seed(100)
 torch.cuda.manual_seed_all(100)
 
 
-# ------------------------------------------
-# 一堆创建路径
-# ------------------------------------------
 if os.path.exists(image_path):
     pass
 else:
@@ -109,7 +94,7 @@ else:
     os.mkdir(save_home)
 
 
-# 根据需要可写在循环内部或外部，查看相应的数据变化
+
 now = time.localtime()
 nowt = time.strftime("%Y-%m-%d-%H_%M_%S", now)
 
@@ -121,7 +106,7 @@ data_transform = {
                                 padding_img(args.padding_value),
                                 transforms.Resize((256,256)),
                                 transforms.CenterCrop((224,224)),
-                                transforms.RandomHorizontalFlip(),  # 以给定的概率随机水平翻转
+                                transforms.RandomHorizontalFlip(),  
                                 Gaussian(0.5,0.1,0.2),
                                 bright_contrast_color_sharpness(p=0.5,bright=0.5),
                                 pepper_salt(p=0.5,percentage=0.15),
@@ -129,7 +114,6 @@ data_transform = {
                                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
                                                      0.229, 0.224, 0.225]),
                                 transforms.RandomErasing(0.3,(0.2,1),(0.2,3.3),value=0),
-                                # transforms.ColorJitter(brightness=0, contrast=0, saturation=0, hue=0),
                                 ]),
     'val': transforms.Compose([ 
                                 padding_img(args.padding_value),
@@ -182,7 +166,7 @@ test_loader = torch.utils.data.DataLoader(test_data_set,
                                           drop_last=False,
                                           collate_fn=test_data_set.collate_fn)
 
-# 模型大小
+
 # summary(model, input_size=(3, 224, 224))
 train_acc = []
 train_loss = []
@@ -193,7 +177,7 @@ if args.train:
     model.model1.load_state_dict(torch.load(args.pretrained))
     best_acc = 0.0
     for epoch in range(args.epochs):
-        model.train()  # 训练时dropout有效
+        model.train()  
         if epoch < 5:
             model.model1.eval()
         loss = 0.0
@@ -213,7 +197,6 @@ if args.train:
             acc += (predict == labels.to(device)).sum().item()
             loop_train.set_description(f'Train Epoch [{epoch+1}/{args.epochs}]')
             loop_train.set_postfix(loss=loss)
-        # 写入loss,loss值，每一个epoch记录一次
         acc_train = acc / train_num
         loss /= len(train_loader)
         train_acc.append(acc_train)
@@ -244,7 +227,6 @@ if args.train:
                 torch.save(model.state_dict(), save_path)
                 print('save the model:%.4f' % best_acc)
 
-            # 写入loss,loss值，每一个epoch记录一次
             writer.add_scalar('Val_acc', acc_val, epoch)
             writer.add_scalar('Val_loss', loss_each_step, epoch)
             val_acc.append(acc_val)
@@ -300,24 +282,16 @@ if args.test:
 
         t2 = time.perf_counter() - t1
 
-        # print(classification_report(y_true, y_pred, target_names=labels, digits=4))
+
         print('test time:', t2)
-        print('pre test time:', (t2 / test_num) * 1000)
-        # print(y_true, y_pred)
+        print('pre test time:', (t2 / test_num) * 1000)     
         print('hamming;', metrics.hamming_loss(y_true, y_pred))
-        # print('jaccard:', metrics.jaccrd_similarity_score(y_true, y_pred))
         print('kappa:', metrics.cohen_kappa_score(y_true, y_pred))
 
-    # confusion.plot()
-    # confusion.summary()
     print("accurate_test:", accurate_test)
-    #     output = torch.squeeze(model(img))
-    #     predict = torch.softmax(output, dim=0)
-    #     predict_cla = torch.argmax(predict).numpy()
-    # print(class_indict[str(predict_cla)], predict[predict_cla].item())
-    # plt.show()
+
 f = 'jilu.txt'
 with open(f,"a") as file:
     file.write(str(accurate_test)+"\n")
-a = 1
+
     
