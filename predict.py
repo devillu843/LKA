@@ -19,9 +19,7 @@ from Backbone.ConfusionMatrix import ConfusionMatrix
 from loss.Focal_Loss import FocalLoss2d, focal_loss
 from loss.soft_Dice_Loss import SoftDiceLoss
 
-# ------------------------------------------
-# 参数调整
-# ------------------------------------------
+
 batch_size = 8
 epochs = 40
 lr = 0.0001
@@ -29,9 +27,7 @@ num_classes = 144
 test = True
 
 
-# ------------------------------------------
-# 模型调整
-# ------------------------------------------
+
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 
@@ -39,7 +35,6 @@ json_file = open('class-MIX-144.json', 'r')
 class_dict = json.load(json_file)
 model = resnet34(num_classes=num_classes).to(device)
 loss_function = nn.CrossEntropyLoss()
-# loss_function = SoftDiceLoss() # 学不到内容
 optimizer = torch.optim.Adam(model.parameters(), lr)
 
 data_transform = {
@@ -89,16 +84,7 @@ with torch.no_grad():
     print(classification_report(y_true, y_pred, target_names=labels, digits=4))
     print('test time:', t2)
     print('pre test time:', (t2 / test_num) * 1000)
-    # print(y_true, y_pred)
-    # print('hamming;', metrics.hamming_loss(y_true, y_pred))
-    # print('jaccard:', metrics.jaccrd_similarity_score(y_true, y_pred))
-    # print('kappa:', metrics.cohen_kappa_score(y_true, y_pred))
 
-# confusion.plot()
-# confusion.summary()
+
 print("accurate_test:", accurate_test)
-#     output = torch.squeeze(model(img))
-#     predict = torch.softmax(output, dim=0)
-#     predict_cla = torch.argmax(predict).numpy()
-# print(class_indict[str(predict_cla)], predict[predict_cla].item())
-# plt.show()
+
