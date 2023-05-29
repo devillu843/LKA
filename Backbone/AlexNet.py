@@ -41,27 +41,24 @@ class AlexNet(nn.Module):
             nn.Linear(256 * 6 * 6, num_classes)
         )
         if init_weights:
-            self._initialize_weights()  # 初始化权重，自动初始化
+            self._initialize_weights()  
 
     def forward(self, x):
-        #CAM = []
+
         x_last2 = self.features1(x)
         x_last = self.features2(x_last2)
         x = self.maxpool(x_last)
-        #CAM = x
-        # 展平处理，从1维开始  与x = x.view(-1, 32*5*5)相同
         x = torch.flatten(x, start_dim=1)
         x = self.classifier(x)
         return x
 
     def _initialize_weights(self):
-        # 遍历每一个层结构，进行权重初始化
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(
                     m.weight, mode='fan_out', nonlinearity='relu')
                 if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)  # 偏执置0
+                    nn.init.constant_(m.bias, 0)  
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
@@ -120,15 +117,12 @@ class AlexNet_two_part(nn.Module):
                 nn.Linear(4096, num_classes),
             )
         if init_weights:
-            self._initialize_weights()  # 初始化权重，自动初始化
+            self._initialize_weights()  
         
     def forward(self, x1, x2):
-        #CAM = []
         x1 = self.features(x1)
         x2 = self.features(x2)
         x = torch.cat([x1, x2], dim=1)
-        #CAM = x
-        # 展平处理，从1维开始  与x = x.view(-1, 32*5*5)相同
         if self.reduce_channel:
             x = self.rc(x)
         x = torch.flatten(x, start_dim=1)
@@ -136,13 +130,13 @@ class AlexNet_two_part(nn.Module):
         return x
 
     def _initialize_weights(self):
-        # 遍历每一个层结构，进行权重初始化
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(
                     m.weight, mode='fan_out', nonlinearity='relu')
                 if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)  # 偏执置0
+                    nn.init.constant_(m.bias, 0)  
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
@@ -226,29 +220,25 @@ class AlexNet_two_part_alone(nn.Module):
                 nn.Linear(4096, num_classes),
             )
         if init_weights:
-            self._initialize_weights()  # 初始化权重，自动初始化
+            self._initialize_weights()  
 
     def forward(self, x1, x2):
-        #CAM = []
         x1 = self.features1(x1)
         x2 = self.features2(x2)
         x = torch.cat([x1, x2], dim=1)
         if self.reduce_channel:
             x = self.rc(x)
-        #CAM = x
-        # 展平处理，从1维开始  与x = x.view(-1, 32*5*5)相同
         x = torch.flatten(x, start_dim=1)
         x = self.classifier(x)
         return x
 
     def _initialize_weights(self):
-        # 遍历每一个层结构，进行权重初始化
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(
                     m.weight, mode='fan_out', nonlinearity='relu')
                 if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)  # 偏执置0
+                    nn.init.constant_(m.bias, 0) 
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
@@ -306,7 +296,7 @@ class AlexNet_three_part(nn.Module):
                 nn.Linear(4096, num_classes),
             )
         if init_weights:
-            self._initialize_weights()  # 初始化权重，自动初始化
+            self._initialize_weights()  
 
     def forward(self, x1, x2, x3):
         #CAM = []
@@ -316,13 +306,11 @@ class AlexNet_three_part(nn.Module):
         x = torch.cat([x1, x2, x3], dim=1)
         if self.reduce_channel:
             x = self.rc(x)
-        # 展平处理，从1维开始  与x = x.view(-1, 32*5*5)相同
         x = torch.flatten(x, start_dim=1)
         x = self.classifier(x)
         return x
 
     def _initialize_weights(self):
-        # 遍历每一个层结构，进行权重初始化
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(
@@ -435,7 +423,7 @@ class AlexNet_three_part_alone(nn.Module):
                 nn.Linear(4096, num_classes),
             )
         if init_weights:
-            self._initialize_weights()  # 初始化权重，自动初始化
+            self._initialize_weights()  
 
     def forward(self, x1, x2, x3):
         #CAM = []
@@ -445,19 +433,17 @@ class AlexNet_three_part_alone(nn.Module):
         x = torch.cat([x1, x2, x3], dim=1)
         if self.reduce_channel:
             x = self.rc(x)
-        # 展平处理，从1维开始  与x = x.view(-1, 32*5*5)相同
         x = torch.flatten(x, start_dim=1)
         x = self.classifier(x)
         return x
 
     def _initialize_weights(self):
-        # 遍历每一个层结构，进行权重初始化
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(
                     m.weight, mode='fan_out', nonlinearity='relu')
                 if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)  # 偏执置0
+                    nn.init.constant_(m.bias, 0)  
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
